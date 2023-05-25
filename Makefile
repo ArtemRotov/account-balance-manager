@@ -4,7 +4,7 @@ run:
  
 .PHONY: build
 build:
-	go build -v -o app ./cmd/app/main.go
+	go build -v -o app_service ./cmd/app/main.go
 
 .PHONY: test
 test:
