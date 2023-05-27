@@ -1,7 +1,19 @@
 package main
 
-import "fmt"
+import (
+	"flag"
+)
+
+var (
+	configPath string
+)
+
+func init() {
+	flag.StringVar(&configPath, "config-path", "config/config.yaml", "path to config file")
+}
 
 func main() {
-	fmt.Println("Hello world!")
+
+	flag.Parse()
+
 }
