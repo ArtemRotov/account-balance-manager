@@ -2,6 +2,8 @@ package main
 
 import (
 	"flag"
+
+	"github.com/ArtemRotov/account-balance-manager/internal/app"
 )
 
 var (
@@ -16,4 +18,5 @@ func main() {
 
 	flag.Parse()
 
+	app.Run(configPath)
 }
