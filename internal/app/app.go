@@ -14,18 +14,26 @@ import (
 )
 
 func Run(configPath string) {
+
 	cfg, err := config.NewConfig(configPath)
 	if err != nil {
-		fmt.Errorf("Config error: %s", err)
+		log.Fatal(err)
 	}
-	log.SetLevel(log.DebugLevel)
+
+	// Logger
+	SetLogrus(cfg.Log.Level)
+
+	// mux handler
+	log.Info("configuring router...")
 	handler := mux.NewRouter()
 	v1.New(handler)
 
+	// HTTP Server
+	log.Info("starting server...")
 	httpserver := httpserver.New(handler, cfg.Port)
 
 	// Waiting signal
-	log.Info("Configuring graceful shutdown...")
+	log.Info("configuring graceful shutdown...")
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 

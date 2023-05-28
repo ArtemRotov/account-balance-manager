@@ -30,7 +30,7 @@ func New(handler http.Handler, port string) *Server {
 
 	s := &Server{
 		server:          httpServer,
-		notify:          make(chan error),
+		notify:          make(chan error, 1),
 		shutdownTimeout: defaultShutdownTimeout,
 	}
 
