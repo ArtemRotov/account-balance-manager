@@ -10,4 +10,8 @@ build:
 test:
 	go test -v -race -timeout 30s ./...
 
+.PHONY: swag
+swag: ### generate swagger docs
+	swag init -g internal/app/app.go --parseInternal --parseDependency
+
 .DEFAULT_GOAL := build

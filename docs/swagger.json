@@ -1,0 +1,17 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "My test service",
+        "title": "My test service",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Artem Rotov",
+            "url": "https://github.com/ArtemRotov",
+            "email": "rotoffff@yandex.ru"
+        },
+        "version": "1.0"
+    },
+    "host": "127.0.0.1:8080",
+    "basePath": "/",
+    "paths": {}
+}

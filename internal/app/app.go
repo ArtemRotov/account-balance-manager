@@ -13,6 +13,18 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// @title My test service
+// @version 1.0
+// @description My test service
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name Artem Rotov
+// @contact.url https://github.com/ArtemRotov
+// @contact.email rotoffff@yandex.ru
+
+// @host 127.0.0.1:8080
+// @BasePath /
+
 func Run(configPath string) {
 
 	cfg, err := config.NewConfig(configPath)

@@ -1,0 +1,13 @@
+basePath: /
+host: 127.0.0.1:8080
+info:
+  contact:
+    email: rotoffff@yandex.ru
+    name: Artem Rotov
+    url: https://github.com/ArtemRotov
+  description: My test service
+  termsOfService: http://swagger.io/terms/
+  title: My test service
+  version: "1.0"
+paths: {}
+swagger: "2.0"
