@@ -11,3 +11,6 @@ log:
 postgres:
   url: "user=root password=root host=localhost dbname=db sslmode=disable"
   max_pool_size: 1
+
+hasher:
+  salt: "salt"

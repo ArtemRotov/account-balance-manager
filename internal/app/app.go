@@ -11,6 +11,7 @@ import (
 	v1 "github.com/ArtemRotov/account-balance-manager/internal/controller/http/v1"
 	"github.com/ArtemRotov/account-balance-manager/internal/repository"
 	"github.com/ArtemRotov/account-balance-manager/internal/service"
+	"github.com/ArtemRotov/account-balance-manager/pkg/hasher"
 	"github.com/ArtemRotov/account-balance-manager/pkg/httpserver"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
@@ -49,8 +50,11 @@ func Run(configPath string) {
 	// Repository
 	rep := repository.NewRepositories(db)
 
+	//Service dependencies
+	deps := service.NewServicesDeps(rep, hasher.NewSHA1Hasher(cfg.Salt))
+
 	// Services
-	services := service.NewServices(rep)
+	services := service.NewServices(deps)
 
 	// mux handler
 	log.Info("configuring router...")

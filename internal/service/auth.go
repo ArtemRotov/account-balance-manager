@@ -7,12 +7,14 @@ import (
 )
 
 type AuthService struct {
-	repo repository.UserRepository
+	repo   repository.UserRepository
+	hasher PasswordHasher
 }
 
-func NewAuthService(r repository.UserRepository) *AuthService {
+func NewAuthService(r repository.UserRepository, h PasswordHasher) *AuthService {
 	return &AuthService{
-		repo: r,
+		repo:   r,
+		hasher: h,
 	}
 }
 

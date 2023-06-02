@@ -16,8 +16,8 @@ func NewAuthRoutes(route *mux.Router, s service.Auth) {
 		s: s,
 	}
 
-	route.HandleFunc("/sign-up", r.SignUp())
-	route.HandleFunc("/sign-in", r.SignIn())
+	route.HandleFunc("/sign-up", r.SignUp()).Methods(http.MethodPost)
+	route.HandleFunc("/sign-in", r.SignIn()).Methods(http.MethodPost)
 }
 
 func (r *AuthRoutes) SignUp() http.HandlerFunc {
