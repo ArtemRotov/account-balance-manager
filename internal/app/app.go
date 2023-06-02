@@ -10,8 +10,10 @@ import (
 	"github.com/ArtemRotov/account-balance-manager/config"
 	v1 "github.com/ArtemRotov/account-balance-manager/internal/controller/http/v1"
 	"github.com/ArtemRotov/account-balance-manager/internal/repository"
+	"github.com/ArtemRotov/account-balance-manager/internal/service"
 	"github.com/ArtemRotov/account-balance-manager/pkg/httpserver"
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -47,10 +49,13 @@ func Run(configPath string) {
 	// Repository
 	rep := repository.NewRepositories(db)
 
+	// Services
+	services := service.NewServices(rep)
+
 	// mux handler
 	log.Info("configuring router...")
 	handler := mux.NewRouter()
-	v1.New(handler)
+	v1.New(handler, services)
 
 	// HTTP Server
 	log.Info("starting server...")

@@ -4,11 +4,12 @@ import (
 	"net/http"
 
 	_ "github.com/ArtemRotov/account-balance-manager/docs"
+	"github.com/ArtemRotov/account-balance-manager/internal/service"
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-func New(router *mux.Router) {
+func New(router *mux.Router, services *service.Services) {
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello world!"))
@@ -22,6 +23,6 @@ func New(router *mux.Router) {
 		// httpSwagger.DomID("swagger-ui"),
 	)).Methods(http.MethodGet)
 
-	// authRoute := router.PathPrefix("/auth").Subrouter()
-	// authRoute.HandleFunc("/h", authHanlder()).Methods("GET")
+	authRoute := router.PathPrefix("/auth").Subrouter()
+	NewAuthRoutes(authRoute, services.Auth)
 }
