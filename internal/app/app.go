@@ -1,6 +1,7 @@
 package app
 
 import (
+	"database/sql"
 	"fmt"
 	"os"
 	"os/signal"
@@ -8,6 +9,7 @@ import (
 
 	"github.com/ArtemRotov/account-balance-manager/config"
 	v1 "github.com/ArtemRotov/account-balance-manager/internal/controller/http/v1"
+	"github.com/ArtemRotov/account-balance-manager/internal/repository"
 	"github.com/ArtemRotov/account-balance-manager/pkg/httpserver"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -34,6 +36,16 @@ func Run(configPath string) {
 
 	// Logger
 	SetLogrus(cfg.Log.Level)
+
+	// Postgres
+	db, err := NewPostgres(cfg.PG.URL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// Repository
+	rep := repository.NewRepositories(db)
 
 	// mux handler
 	log.Info("configuring router...")
@@ -62,4 +74,17 @@ func Run(configPath string) {
 	if err != nil {
 		log.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
 	}
+}
+
+func NewPostgres(url string) (*sql.DB, error) {
+	db, err := sql.Open("postgres", url)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
