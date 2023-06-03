@@ -20,5 +20,5 @@ func NewAuthService(r repository.UserRepository, h PasswordHasher) *AuthService 
 
 func (s *AuthService) CreateUser(ctx context.Context, username, password string) (int, error) {
 
-	return 0, nil
+	return 1, nil
 }

@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"encoding/json"
 	"net/http"
 
 	_ "github.com/ArtemRotov/account-balance-manager/docs"
@@ -25,4 +26,11 @@ func New(router *mux.Router, services *service.Services) {
 
 	authRoute := router.PathPrefix("/auth").Subrouter()
 	NewAuthRoutes(authRoute, services.Auth)
+}
+
+func respond(w http.ResponseWriter, r *http.Request, code int, data interface{}) {
+	w.WriteHeader(code)
+	if data != nil {
+		json.NewEncoder(w).Encode(data)
+	}
 }
