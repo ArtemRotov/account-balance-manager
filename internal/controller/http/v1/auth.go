@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/ArtemRotov/account-balance-manager/internal/model"
@@ -49,7 +50,12 @@ func (route *AuthRoutes) SignUp() http.HandlerFunc {
 
 		id, err := route.service.CreateUser(r.Context(), u.Username, u.Password)
 		if err != nil {
+			if errors.Is(err, service.ErrUserAlreadyExists) {
+				newErrorRespond(w, r, http.StatusBadRequest, err)
+				return
+			}
 			newErrorRespond(w, r, http.StatusInternalServerError, err)
+			return
 		}
 
 		type response struct {

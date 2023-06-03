@@ -1,14 +1,12 @@
 package v1
 
 import (
-	"fmt"
+	"errors"
 	"net/http"
 )
 
 var (
-	errInvalidRequestBody = fmt.Errorf("invalid request body")
-	errInvalidAuthHeader  = fmt.Errorf("invalid auth header")
-	errCannotParseToken   = fmt.Errorf("cannot parse token")
+	errInvalidRequestBody = errors.New("invalid request body")
 )
 
 func newErrorRespond(w http.ResponseWriter, r *http.Request, code int, err error) {

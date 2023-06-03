@@ -11,11 +11,6 @@ import (
 )
 
 func New(router *mux.Router, services *service.Services) {
-
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello world!"))
-	}).Methods("GET")
-
 	// Swagger
 	router.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), //The url pointing to API definition
