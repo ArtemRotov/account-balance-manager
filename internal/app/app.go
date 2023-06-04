@@ -51,7 +51,7 @@ func Run(configPath string) {
 	rep := repository.NewRepositories(db)
 
 	//Service dependencies
-	deps := service.NewServicesDeps(rep, hasher.NewSHA1Hasher(cfg.Salt))
+	deps := service.NewServicesDeps(rep, hasher.NewSHA1Hasher(cfg.Salt), cfg.SignKey, cfg.TokenTTL)
 
 	// Services
 	services := service.NewServices(deps)

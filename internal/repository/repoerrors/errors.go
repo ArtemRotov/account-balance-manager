@@ -3,5 +3,6 @@ package repoerrors
 import "errors"
 
 var (
-	ErrAlreadyExists = errors.New("an entity with these parameters already exists")
+	ErrAlreadyExists = errors.New("entity already exists")
+	ErrNotFound      = errors.New("entity not found")
 )

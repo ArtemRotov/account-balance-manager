@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"path"
+	"time"
 
 	"github.com/ilyakaznacheev/cleanenv"
 )
@@ -14,6 +15,7 @@ type (
 		Log    `yaml:"log"`
 		PG     `yaml:"postgres"`
 		Hasher `yaml:"hasher"`
+		JWT    `yaml:"jwt"`
 	}
 
 	App struct {
@@ -36,6 +38,11 @@ type (
 
 	Hasher struct {
 		Salt string `yaml:"salt"`
+	}
+
+	JWT struct {
+		SignKey  string        `yaml:"sign_key"`
+		TokenTTL time.Duration `yaml:"token_ttl"`
 	}
 )
 

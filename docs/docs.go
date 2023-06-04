@@ -21,6 +21,58 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/sign-in": {
+            "post": {
+                "description": "Sign in",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Sign in",
+                "parameters": [
+                    {
+                        "description": "ID NO NEED",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_ArtemRotov_account-balance-manager_internal_model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.signInOutput"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/sign-up": {
             "post": {
                 "description": "Sign up",
@@ -36,12 +88,12 @@ const docTemplate = `{
                 "summary": "Sign up",
                 "parameters": [
                     {
-                        "description": "req",
-                        "name": "req",
+                        "description": "ID NO NEED",
+                        "name": "user",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/internal_controller_http_v1.signUpInput"
+                            "$ref": "#/definitions/github_com_ArtemRotov_account-balance-manager_internal_model.User"
                         }
                     }
                 ],
@@ -55,13 +107,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
                         }
                     }
                 }
@@ -69,16 +127,39 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "internal_controller_http_v1.signUpInput": {
+        "github_com_ArtemRotov_account-balance-manager_internal_model.User": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "password": {
                     "type": "string",
-                    "example": "password12345678"
+                    "maxLength": 30,
+                    "minLength": 6,
+                    "example": "pass12345678"
                 },
                 "username": {
                     "type": "string",
                     "example": "example@mail.org"
+                }
+            }
+        },
+        "internal_controller_http_v1.ErrorOutput": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "example error"
+                }
+            }
+        },
+        "internal_controller_http_v1.signInOutput": {
+            "type": "object",
+            "properties": {
+                "Token": {
+                    "type": "string",
+                    "example": "eyJhbGc..."
                 }
             }
         },

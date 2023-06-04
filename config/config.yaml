@@ -14,3 +14,8 @@ postgres:
 
 hasher:
   salt: "salt"
+
+jwt:
+  sign_key: "secret"
+  token_ttl: 120m
+  

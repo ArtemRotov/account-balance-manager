@@ -3,6 +3,7 @@ package pgdb
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/ArtemRotov/account-balance-manager/internal/model"
 	"github.com/ArtemRotov/account-balance-manager/internal/repository/repoerrors"
@@ -25,7 +26,7 @@ func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) (int, error
 		user.Username,
 	).Scan(&id)
 
-	if err != nil && err != sql.ErrNoRows { //Something wrong
+	if err != nil && err != sql.ErrNoRows { //something wrong
 		return 0, err
 	}
 
@@ -42,4 +43,23 @@ func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) (int, error
 	}
 
 	return id, nil
+}
+
+func (r *UserRepo) UserByUsernameAndPassword(ctx context.Context, username, password string) (*model.User, error) {
+	u := &model.User{}
+
+	err := r.db.QueryRow(
+		"SELECT id, username, password, created_at FROM users where username = $1 AND password = $2",
+		username,
+		password,
+	).Scan(&u.Id, &u.Username, &u.Password, &u.CreatedAt)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, repoerrors.ErrNotFound
+		}
+		return nil, err //something wrong
+	}
+
+	return u, nil
 }

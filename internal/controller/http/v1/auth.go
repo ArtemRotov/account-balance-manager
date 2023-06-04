@@ -14,11 +14,6 @@ type authRoutes struct {
 	service service.Auth
 }
 
-type signUpInput struct {
-	Username string `json:"username" example:"example@mail.org"`
-	Password string `json:"password" example:"password12345678"`
-}
-
 type signUpOutput struct {
 	Id int `json:"id" example:"1"`
 }
@@ -37,32 +32,28 @@ func NewAuthRoutes(router *mux.Router, s service.Auth) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param req body signUpInput true "req"
+// @Param user body model.User true "ID NO NEED"
 // @Success 201 {object} signUpOutput
-// @Failure 400 {object} string
-// @Failure 500 {object} string
+// @Failure 400 {object} ErrorOutput
+// @Failure 422 {object} ErrorOutput
+// @Failure 500 {object} ErrorOutput
 // @Router /auth/sign-up [post]
 func (route *authRoutes) signUp() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		req := &signUpInput{}
+		user := &model.User{}
 
-		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(user); err != nil {
 			newErrorRespond(w, r, http.StatusBadRequest, errInvalidRequestBody)
 			return
 		}
 
-		u := &model.User{
-			Username: req.Username,
-			Password: req.Password,
-		}
-
-		if err := u.Validate(); err != nil {
+		if err := user.Validate(); err != nil {
 			newErrorRespond(w, r, http.StatusUnprocessableEntity, err)
 			return
 		}
 
-		id, err := route.service.CreateUser(r.Context(), u.Username, u.Password)
+		id, err := route.service.CreateUser(r.Context(), user.Username, user.Password)
 		if err != nil {
 			if errors.Is(err, service.ErrUserAlreadyExists) {
 				newErrorRespond(w, r, http.StatusBadRequest, err)
@@ -76,9 +67,45 @@ func (route *authRoutes) signUp() http.HandlerFunc {
 	}
 }
 
-func (r *authRoutes) signIn() http.HandlerFunc {
+type signInOutput struct {
+	Token string `json:"Token" example:"eyJhbGc..."`
+}
+
+// @Summary Sign in
+// @Description Sign in
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body model.User true "ID NO NEED"
+// @Success 200 {object} signInOutput
+// @Failure 400 {object} ErrorOutput
+// @Failure 422 {object} ErrorOutput
+// @Failure 500 {object} ErrorOutput
+// @Router /auth/sign-in [post]
+func (route *authRoutes) signIn() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("SignIn"))
+		user := &model.User{}
+
+		if err := json.NewDecoder(r.Body).Decode(user); err != nil {
+			newErrorRespond(w, r, http.StatusBadRequest, errInvalidRequestBody)
+			return
+		}
+
+		if err := user.Validate(); err != nil {
+			newErrorRespond(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		token, err := route.service.GenerateToken(r.Context(), user.Username, user.Password)
+		if err != nil {
+			if errors.Is(err, service.ErrUserNotFound) {
+				newErrorRespond(w, r, http.StatusBadRequest, errInvalidUsernameOrPassword)
+				return
+			}
+			newErrorRespond(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		respond(w, r, http.StatusOK, &signInOutput{Token: token})
 	}
 }
