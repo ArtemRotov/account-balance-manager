@@ -10,7 +10,6 @@ var (
 )
 
 func newErrorRespond(w http.ResponseWriter, r *http.Request, code int, err error) {
-	w.WriteHeader(code)
 	data := map[string]string{"error": err.Error()}
 
 	respond(w, r, code, data)
