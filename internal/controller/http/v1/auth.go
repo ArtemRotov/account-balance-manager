@@ -10,28 +10,42 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type AuthRoutes struct {
+type authRoutes struct {
 	service service.Auth
 }
 
+type signUpInput struct {
+	Username string `json:"username" example:"example@mail.org"`
+	Password string `json:"password" example:"password12345678"`
+}
+
+type signUpOutput struct {
+	Id int `json:"id" example:"1"`
+}
+
 func NewAuthRoutes(router *mux.Router, s service.Auth) {
-	r := &AuthRoutes{
+	r := &authRoutes{
 		service: s,
 	}
 
-	router.HandleFunc("/sign-up", r.SignUp()).Methods(http.MethodPost)
-	router.HandleFunc("/sign-in", r.SignIn()).Methods(http.MethodPost)
+	router.HandleFunc("/sign-up", r.signUp()).Methods(http.MethodPost)
+	router.HandleFunc("/sign-in", r.signIn()).Methods(http.MethodPost)
 }
 
-func (route *AuthRoutes) SignUp() http.HandlerFunc {
-
-	type request struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+// @Summary Sign up
+// @Description Sign up
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param req body signUpInput true "req"
+// @Success 201 {object} signUpOutput
+// @Failure 400 {object} string
+// @Failure 500 {object} string
+// @Router /auth/sign-up [post]
+func (route *authRoutes) signUp() http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		req := &request{}
+		req := &signUpInput{}
 
 		if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 			newErrorRespond(w, r, http.StatusBadRequest, errInvalidRequestBody)
@@ -58,15 +72,11 @@ func (route *AuthRoutes) SignUp() http.HandlerFunc {
 			return
 		}
 
-		type response struct {
-			Id int `json:"id"`
-		}
-
-		respond(w, r, http.StatusOK, &response{Id: id})
+		respond(w, r, http.StatusCreated, &signUpOutput{Id: id})
 	}
 }
 
-func (r *AuthRoutes) SignIn() http.HandlerFunc {
+func (r *authRoutes) signIn() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("SignIn"))

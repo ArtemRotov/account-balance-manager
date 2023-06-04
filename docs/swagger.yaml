@@ -1,4 +1,20 @@
 basePath: /
+definitions:
+  internal_controller_http_v1.signUpInput:
+    properties:
+      password:
+        example: password12345678
+        type: string
+      username:
+        example: example@mail.org
+        type: string
+    type: object
+  internal_controller_http_v1.signUpOutput:
+    properties:
+      id:
+        example: 1
+        type: integer
+    type: object
 host: 127.0.0.1:8080
 info:
   contact:
@@ -9,5 +25,35 @@ info:
   termsOfService: http://swagger.io/terms/
   title: My test service
   version: "1.0"
-paths: {}
+paths:
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: Sign up
+      parameters:
+      - description: req
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/internal_controller_http_v1.signUpInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.signUpOutput'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Sign up
+      tags:
+      - auth
 swagger: "2.0"
