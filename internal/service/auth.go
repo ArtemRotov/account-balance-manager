@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/ArtemRotov/account-balance-manager/internal/model"
@@ -82,4 +83,25 @@ func (s *AuthService) GenerateToken(ctx context.Context, username, password stri
 	}
 
 	return tokenString, nil
+}
+
+func (s *AuthService) ParseToken(accessToken string) (int, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(s.signKey), nil
+	})
+
+	if err != nil {
+		return 0, ErrCannotParseToken
+	}
+
+	claims, ok := token.Claims.(*TokenClaims)
+	if !ok {
+		return 0, ErrCannotParseToken
+	}
+
+	return claims.UserId, nil
 }
