@@ -40,4 +40,5 @@ type PasswordHasher interface {
 type Auth interface {
 	CreateUser(ctx context.Context, username, password string) (int, error)
 	GenerateToken(ctx context.Context, username, password string) (string, error)
+	ParseToken(accessToken string) (int, error)
 }

@@ -1,35 +1,62 @@
 package v1
 
-// const (
-// 	ctxKeyRequestID = iota
-// )
+import (
+	"context"
+	"net/http"
+	"strings"
 
-// func setRequestID(next http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		id := uuid.New().String()
+	"github.com/ArtemRotov/account-balance-manager/internal/service"
+	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
+)
 
-// 		w.Header().Set("X-Request-ID", id)
-// 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyRequestID, id)))
-// 	})
-// }
+type ctxKey int8
 
-// func logRequest(next http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		logger := s.logger.WithFields(logrus.Fields{
-// 			"remote_addr": r.RemoteAddr,
-// 			"request_id":  r.Context().Value(ctxKeyRequestID).(string),
-// 		})
+const (
+	ctxKeyUser ctxKey = iota
+)
 
-// 		logger.Infof("started %s %s", r.Method, r.RequestURI)
+type authMiddleware struct {
+	service service.Auth
+}
 
-// 		start := time.Now()
+func NewAuthMiddleware(router *mux.Router, s service.Auth) *authMiddleware {
+	return &authMiddleware{
+		service: s,
+	}
+}
 
-// 		rw := &responseWriter{w, http.StatusOK}
-// 		next.ServeHTTP(rw, r)
+func (m *authMiddleware) verify(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token, ok := bearerToken(r)
+		if !ok {
+			newErrorRespond(w, r, http.StatusUnauthorized, errInvalidAuthHeader)
+			log.Errorf("authMiddleware.verify: bearerToken: %v", errInvalidAuthHeader.Error())
+			return
+		}
 
-// 		logger.Infof("completed with %d %s in %v",
-// 			rw.code,
-// 			http.StatusText(rw.code),
-// 			time.Since(start))
-// 	})
-// }
+		userId, err := m.service.ParseToken(token)
+		if err != nil {
+			newErrorRespond(w, r, http.StatusUnauthorized, errCannotParseToken)
+			log.Errorf("authMiddleware.verify: m.service.ParseToken: %v", err.Error())
+			return
+		}
+
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyUser, userId)))
+	})
+}
+
+func bearerToken(r *http.Request) (string, bool) {
+	const prefix = "Bearer "
+
+	header := r.Header.Get("Authorization")
+	if header == "" {
+		return "", false
+	}
+
+	if len(header) > len(prefix) && strings.EqualFold(header[:len(prefix)], prefix) {
+		return header[len(prefix):], true
+	}
+
+	return "", false
+}

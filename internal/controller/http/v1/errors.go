@@ -8,6 +8,8 @@ import (
 var (
 	errInvalidRequestBody        = errors.New("invalid request body")
 	errInvalidUsernameOrPassword = errors.New("invalid username or password")
+	errCannotParseToken          = errors.New("cannot parse token")
+	errInvalidAuthHeader         = errors.New("invalid auth header")
 )
 
 type ErrorOutput struct {

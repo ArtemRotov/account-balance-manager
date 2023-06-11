@@ -14,10 +14,6 @@ type authRoutes struct {
 	service service.Auth
 }
 
-type signUpOutput struct {
-	Id int `json:"id" example:"1"`
-}
-
 func NewAuthRoutes(router *mux.Router, s service.Auth) {
 	r := &authRoutes{
 		service: s,
@@ -25,6 +21,10 @@ func NewAuthRoutes(router *mux.Router, s service.Auth) {
 
 	router.HandleFunc("/sign-up", r.signUp()).Methods(http.MethodPost)
 	router.HandleFunc("/sign-in", r.signIn()).Methods(http.MethodPost)
+}
+
+type signUpOutput struct {
+	Id int `json:"id" example:"1"`
 }
 
 // @Summary Sign up

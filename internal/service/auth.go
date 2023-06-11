@@ -22,7 +22,7 @@ type AuthService struct {
 
 type TokenClaims struct {
 	jwt.StandardClaims
-	UserId int64
+	UserId int
 }
 
 func NewAuthService(r repository.UserRepository, h PasswordHasher, signKey string, ttl time.Duration) *AuthService {
