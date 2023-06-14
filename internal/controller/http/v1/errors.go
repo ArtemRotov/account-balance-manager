@@ -10,6 +10,7 @@ var (
 	errInvalidUsernameOrPassword = errors.New("invalid username or password")
 	errCannotParseToken          = errors.New("cannot parse token")
 	errInvalidAuthHeader         = errors.New("invalid auth header")
+	errInvalidUserId             = errors.New("invalid userId")
 )
 
 type ErrorOutput struct {

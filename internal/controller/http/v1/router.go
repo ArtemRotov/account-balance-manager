@@ -25,6 +25,9 @@ func New(router *mux.Router, services *service.Services) {
 	apiPrefix := router.PathPrefix("/api/v1").Subrouter()
 	authMiddlwr := NewAuthMiddleware(apiPrefix, services)
 	apiPrefix.Use(authMiddlwr.verify)
+
+	accountPrefix := apiPrefix.PathPrefix("/account").Subrouter()
+	NewAccountRoutes(accountPrefix, services.Account)
 }
 
 func respond(w http.ResponseWriter, r *http.Request, code int, data interface{}) {

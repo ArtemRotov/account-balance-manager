@@ -19,6 +19,8 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 	}
 }
 
+//	Создается не только User, но и аккаунт связаный с ним. Наверное это плохо
+
 func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) (int, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -65,13 +67,11 @@ func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) (int, error
 func (r *UserRepo) UserByUsernameAndPassword(ctx context.Context, username, password string) (*model.User, error) {
 	u := &model.User{}
 
-	err := r.db.QueryRow(
+	if err := r.db.QueryRow(
 		"SELECT id, username, password, created_at FROM users where username = $1 AND password = $2",
 		username,
 		password,
-	).Scan(&u.Id, &u.Username, &u.Password, &u.CreatedAt)
-
-	if err != nil {
+	).Scan(&u.Id, &u.Username, &u.Password, &u.CreatedAt); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, repoerrors.ErrNotFound
 		}

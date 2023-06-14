@@ -8,10 +8,12 @@ import (
 
 type Repositories struct {
 	UserRepository
+	AccountRepository
 }
 
 func NewRepositories(db *sql.DB) *Repositories {
 	return &Repositories{
-		UserRepository: pgdb.NewUserRepo(db),
+		UserRepository:    pgdb.NewUserRepo(db),
+		AccountRepository: pgdb.NewAccountRepo(db),
 	}
 }

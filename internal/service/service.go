@@ -4,16 +4,19 @@ import (
 	"context"
 	"time"
 
+	"github.com/ArtemRotov/account-balance-manager/internal/model"
 	"github.com/ArtemRotov/account-balance-manager/internal/repository"
 )
 
 type Services struct {
 	Auth
+	Account
 }
 
 func NewServices(deps *ServiceDeps) *Services {
 	return &Services{
-		Auth: NewAuthService(deps.repo.UserRepository, deps.hasher, deps.signKey, deps.tokenTTL),
+		Auth:    NewAuthService(deps.repo.UserRepository, deps.hasher, deps.signKey, deps.tokenTTL),
+		Account: NewAccountService(deps.repo.AccountRepository),
 	}
 }
 
@@ -41,4 +44,8 @@ type Auth interface {
 	CreateUser(ctx context.Context, username, password string) (int, error)
 	GenerateToken(ctx context.Context, username, password string) (string, error)
 	ParseToken(accessToken string) (int, error)
+}
+
+type Account interface {
+	AccountByUserId(ctx context.Context, userId int) (*model.Account, error)
 }
