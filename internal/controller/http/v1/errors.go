@@ -11,6 +11,7 @@ var (
 	errCannotParseToken          = errors.New("cannot parse token")
 	errInvalidAuthHeader         = errors.New("invalid auth header")
 	errInvalidUserId             = errors.New("invalid userId")
+	errInvalidDepositValue       = errors.New("invalid deposit value. Value must be greater then 0")
 )
 
 type ErrorOutput struct {

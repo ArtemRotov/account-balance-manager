@@ -48,4 +48,5 @@ type Auth interface {
 
 type Account interface {
 	AccountByUserId(ctx context.Context, userId int) (*model.Account, error)
+	DepositByUserId(ctx context.Context, userId, amount int) (*model.Account, error)
 }

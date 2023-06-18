@@ -14,4 +14,12 @@ test:
 swag: ### generate swagger docs
 	swag init -g internal/app/app.go --parseInternal --parseDependency
 
+.PHONY: migrateup
+migrateup: ### migrate up
+	migrate -path migrations -database "postgres://root:root@localhost/db?sslmode=disable" up
+
+.PHONY: migratedown
+migratedown: ### migrate down
+	migrate -path migrations -database "postgres://root:root@localhost/db?sslmode=disable" down
+
 .DEFAULT_GOAL := build

@@ -10,7 +10,7 @@ import (
 	"github.com/ArtemRotov/account-balance-manager/internal/repository"
 	"github.com/ArtemRotov/account-balance-manager/internal/repository/repoerrors"
 	"github.com/golang-jwt/jwt"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type AuthService struct {
@@ -45,7 +45,7 @@ func (s *AuthService) CreateUser(ctx context.Context, username, password string)
 		if errors.Is(err, repoerrors.ErrAlreadyExists) {
 			return 0, ErrUserAlreadyExists
 		}
-		log.Errorf("AuthService.CreateUser - cannot create user %v", err)
+		logrus.Errorf("AuthService.CreateUser - cannot create user %v", err)
 		return 0, err
 	}
 
@@ -63,7 +63,7 @@ func (s *AuthService) GenerateToken(ctx context.Context, username, password stri
 		if errors.Is(err, repoerrors.ErrNotFound) {
 			return "", ErrUserNotFound
 		}
-		log.Errorf("AuthService.GenerateToken - cannot get user %v", err)
+		logrus.Errorf("AuthService.GenerateToken - cannot get user %v", err)
 		return "", err
 	}
 
@@ -78,7 +78,7 @@ func (s *AuthService) GenerateToken(ctx context.Context, username, password stri
 	// sign token
 	tokenString, err := token.SignedString([]byte(s.signKey))
 	if err != nil {
-		log.Errorf("AuthService.GenerateToken: cannot sign token: %v", err)
+		logrus.Errorf("AuthService.GenerateToken: cannot sign token: %v", err)
 		return "", ErrCannotSignToken
 	}
 

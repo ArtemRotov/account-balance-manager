@@ -19,6 +19,32 @@ definitions:
         example: example error
         type: string
     type: object
+  internal_controller_http_v1.balanceInput:
+    properties:
+      user_id:
+        type: integer
+    type: object
+  internal_controller_http_v1.balanceOutput:
+    properties:
+      balance:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  internal_controller_http_v1.depositInput:
+    properties:
+      amount:
+        type: integer
+      user_id:
+        type: integer
+    type: object
+  internal_controller_http_v1.depositOutput:
+    properties:
+      balance:
+        type: integer
+      user_id:
+        type: integer
+    type: object
   internal_controller_http_v1.signInOutput:
     properties:
       Token:
@@ -42,6 +68,66 @@ info:
   title: My test service
   version: "1.0"
 paths:
+  /api/v1/account/:
+    get:
+      consumes:
+      - application/json
+      description: User balance
+      parameters:
+      - description: user_id
+        in: body
+        name: balanceInput
+        required: true
+        schema:
+          $ref: '#/definitions/internal_controller_http_v1.balanceInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.balanceOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+      summary: Balance
+      tags:
+      - api/v1/account
+  /api/v1/account/deposit/:
+    post:
+      consumes:
+      - application/json
+      description: Deposit by userId
+      parameters:
+      - description: user_id, amount
+        in: body
+        name: depositInput
+        required: true
+        schema:
+          $ref: '#/definitions/internal_controller_http_v1.depositInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.depositOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+      summary: Deposit
+      tags:
+      - api/v1/account/deposit
   /auth/sign-in:
     post:
       consumes:

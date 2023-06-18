@@ -20,7 +20,6 @@ func NewUserRepo(db *sql.DB) *UserRepo {
 }
 
 //	Создается не только User, но и аккаунт связаный с ним. Наверное это плохо
-
 func (r *UserRepo) CreateUser(ctx context.Context, user *model.User) (int, error) {
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
