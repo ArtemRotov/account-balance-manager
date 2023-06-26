@@ -35,6 +35,9 @@ func (s *ReservationService) CreateReservation(ctx context.Context, account_id,
 		if errors.Is(err, repoerrors.ErrAlreadyExists) {
 			logrus.Errorf("ReservationService.CreateReservation - reservation exists %v", err)
 			return nil, ErrReservationAlreadyExists
+		} else if errors.Is(err, repoerrors.ErrInsufficientBalance) {
+			logrus.Errorf("ReservationService.CreateReservation - not enough money %v", err)
+			return nil, ErrNotEnoughMoney
 		}
 		logrus.Errorf("ReservationService.CreateReservation - repoerror %v", err)
 		return nil, err

@@ -12,6 +12,8 @@ var (
 	errInvalidAuthHeader         = errors.New("invalid auth header")
 	errInvalidUserId             = errors.New("invalid userId")
 	errInvalidDepositValue       = errors.New("invalid deposit value. Value must be greater then 0")
+	errNotEnoughMoney            = errors.New("not enough money")
+	errReservationAlreadyExists  = errors.New("cannot create reservation. already exists")
 )
 
 type ErrorOutput struct {

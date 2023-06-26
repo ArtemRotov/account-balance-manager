@@ -1,5 +1,22 @@
 basePath: /
 definitions:
+  github_com_ArtemRotov_account-balance-manager_internal_model.Reservation:
+    properties:
+      account_id:
+        example: 12
+        type: integer
+      amount:
+        example: 12441
+        type: integer
+      id:
+        type: integer
+      order_id:
+        example: 11231
+        type: integer
+      service_id:
+        example: 134
+        type: integer
+    type: object
   github_com_ArtemRotov_account-balance-manager_internal_model.User:
     properties:
       id:
@@ -22,27 +39,40 @@ definitions:
   internal_controller_http_v1.balanceInput:
     properties:
       user_id:
+        example: 1
         type: integer
     type: object
   internal_controller_http_v1.balanceOutput:
     properties:
       balance:
+        example: 10000
         type: integer
       user_id:
+        example: 1
+        type: integer
+    type: object
+  internal_controller_http_v1.createOutput:
+    properties:
+      id:
+        example: 1
         type: integer
     type: object
   internal_controller_http_v1.depositInput:
     properties:
       amount:
+        example: 1000
         type: integer
       user_id:
+        example: 1
         type: integer
     type: object
   internal_controller_http_v1.depositOutput:
     properties:
       balance:
+        example: 1000
         type: integer
       user_id:
+        example: 1
         type: integer
     type: object
   internal_controller_http_v1.signInOutput:
@@ -128,6 +158,40 @@ paths:
       summary: Deposit
       tags:
       - api/v1/account/deposit
+  /api/v1/reservation/create:
+    post:
+      consumes:
+      - application/json
+      description: create new reservation
+      parameters:
+      - description: ID NO NEED
+        in: body
+        name: reservation
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ArtemRotov_account-balance-manager_internal_model.Reservation'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.createOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+      summary: create
+      tags:
+      - api/v1/reservation/create
   /auth/sign-in:
     post:
       consumes:

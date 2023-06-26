@@ -113,6 +113,58 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/reservation/create": {
+            "post": {
+                "description": "create new reservation",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api/v1/reservation/create"
+                ],
+                "summary": "create",
+                "parameters": [
+                    {
+                        "description": "ID NO NEED",
+                        "name": "reservation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_ArtemRotov_account-balance-manager_internal_model.Reservation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.createOutput"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/sign-in": {
             "post": {
                 "description": "Sign in",
@@ -219,6 +271,30 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_ArtemRotov_account-balance-manager_internal_model.Reservation": {
+            "type": "object",
+            "properties": {
+                "account_id": {
+                    "type": "integer",
+                    "example": 12
+                },
+                "amount": {
+                    "type": "integer",
+                    "example": 12441
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "order_id": {
+                    "type": "integer",
+                    "example": 11231
+                },
+                "service_id": {
+                    "type": "integer",
+                    "example": 134
+                }
+            }
+        },
         "github_com_ArtemRotov_account-balance-manager_internal_model.User": {
             "type": "object",
             "properties": {
@@ -250,7 +326,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "user_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -258,10 +335,21 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "balance": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 10000
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "internal_controller_http_v1.createOutput": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -269,10 +357,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1000
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },
@@ -280,10 +370,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "balance": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1000
                 },
                 "user_id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },

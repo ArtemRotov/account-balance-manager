@@ -25,21 +25,51 @@ func (r *ReservationRepo) CreateReservation(ctx context.Context, rsv *model.Rese
 		return 0, repoerrors.ErrCannotStartTransaction
 	}
 
-	rows := tx.QueryRow(
-		`SELECT * FROM reservations WHERE 
+	cnt := 0
+	if err := tx.QueryRow(
+		`SELECT COUNT(*) FROM reservations WHERE 
 		account_id = $1 AND  service_id = $2 AND order_id = $3 AND amount = $4`,
-		rsv.AccountId, rsv.ServiceId, rsv.OrderId, rsv.Amount)
-	if rows.Err() == nil {
+		rsv.AccountId, rsv.ServiceId, rsv.OrderId, rsv.Amount,
+	).Scan(&cnt); err != nil {
+		if !errors.Is(err, sql.ErrNoRows) {
+			tx.Rollback()
+			return 0, err
+		}
+	}
+	if cnt > 0 {
 		tx.Rollback()
 		return 0, repoerrors.ErrAlreadyExists
-	} else if !errors.Is(rows.Err(), sql.ErrNoRows) {
+	}
+
+	balance := 0
+	if err := tx.QueryRow(
+		"SELECT balance FROM accounts WHERE user_id = $1",
+		rsv.AccountId,
+	).Scan(&balance); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			tx.Rollback()
+			return 0, repoerrors.ErrNotFound
+		}
+		return 0, err
+	}
+
+	if balance-rsv.Amount < 0 {
 		tx.Rollback()
-		return 0, rows.Err()
+		return 0, repoerrors.ErrInsufficientBalance
+	}
+
+	if _, err := tx.Exec(
+		"UPDATE accounts SET balance = $1 WHERE user_id = $2",
+		balance-rsv.Amount,
+		rsv.AccountId,
+	); err != nil {
+		tx.Rollback()
+		return 0, err
 	}
 
 	id := 0
 	if err := tx.QueryRow(
-		`INSERT INTO (account_id, service_id, order_id, amount) VALUES ($1, $2, $3, $4) RETURNING id`,
+		`INSERT INTO reservations (account_id, service_id, order_id, amount) VALUES ($1, $2, $3, $4) RETURNING id`,
 		rsv.AccountId, rsv.ServiceId, rsv.OrderId, rsv.Amount,
 	).Scan(&id); err != nil {
 		tx.Rollback()

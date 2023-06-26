@@ -12,4 +12,5 @@ var (
 	ErrCannotSignToken          = errors.New("cannot sign token")
 	ErrCannotParseToken         = errors.New("cannot parse token")
 	ErrReservationAlreadyExists = errors.New("reservation already exists")
+	ErrNotEnoughMoney           = errors.New("not enough money")
 )

@@ -23,12 +23,12 @@ func NewAccountRoutes(router *mux.Router, s service.Account) {
 }
 
 type balanceInput struct {
-	UserId int `json:"user_id"`
+	UserId int `json:"user_id" example:"1"`
 }
 
 type balanceOutput struct {
-	UserId  int `json:"user_id"`
-	Balance int `json:"balance"`
+	UserId  int `json:"user_id" example:"1"`
+	Balance int `json:"balance" example:"10000"`
 }
 
 // @Summary Balance
@@ -70,13 +70,13 @@ func (router *accountRoutes) Balance() http.HandlerFunc {
 }
 
 type depositInput struct {
-	UserId int `json:"user_id"`
-	Amount int `json:"amount"`
+	UserId int `json:"user_id" example:"1"`
+	Amount int `json:"amount" example:"1000"`
 }
 
 type depositOutput struct {
-	UserId  int `json:"user_id"`
-	Balance int `json:"balance"`
+	UserId  int `json:"user_id" example:"1"`
+	Balance int `json:"balance" example:"1000"`
 }
 
 // @Summary Deposit
