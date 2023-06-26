@@ -15,3 +15,7 @@ type AccountRepository interface {
 	AccountByUserId(ctx context.Context, userId int) (*model.Account, error)
 	DepositByUserId(ctx context.Context, userId, amount int) (*model.Account, error)
 }
+
+type ReservationRepository interface {
+	CreateReservation(ctx context.Context, rsv *model.Reservation) (int, error)
+}
