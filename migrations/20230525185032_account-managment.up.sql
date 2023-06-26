@@ -14,3 +14,13 @@ CREATE TABLE accounts (
 	created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
 	FOREIGN KEY (user_id) REFERENCES users (id)
 );
+
+CREATE TABLE reservations (
+	id 			SERIAL PRIMARY KEY,
+	account_id 	INT NOT NULL,
+	service_id 	INT NOT NULL,
+	order_id 	INT NOT NULL,
+	amount 		INT NOT NULL,
+	created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+	FOREIGN KEY (account_id) REFERENCES accounts (id)
+);

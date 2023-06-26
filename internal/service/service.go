@@ -11,12 +11,14 @@ import (
 type Services struct {
 	Auth
 	Account
+	Reservation
 }
 
 func NewServices(deps *ServiceDeps) *Services {
 	return &Services{
-		Auth:    NewAuthService(deps.repo.UserRepository, deps.hasher, deps.signKey, deps.tokenTTL),
-		Account: NewAccountService(deps.repo.AccountRepository),
+		Auth:        NewAuthService(deps.repo.UserRepository, deps.hasher, deps.signKey, deps.tokenTTL),
+		Account:     NewAccountService(deps.repo.AccountRepository),
+		Reservation: NewReservationService(deps.repo),
 	}
 }
 
@@ -49,4 +51,8 @@ type Auth interface {
 type Account interface {
 	AccountByUserId(ctx context.Context, userId int) (*model.Account, error)
 	DepositByUserId(ctx context.Context, userId, amount int) (*model.Account, error)
+}
+
+type Reservation interface {
+	CreateReservation(ctx context.Context, account_id, service_id, order_id, amount int) (*model.Reservation, error)
 }

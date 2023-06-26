@@ -28,6 +28,9 @@ func New(router *mux.Router, services *service.Services) {
 
 	accountPrefix := apiPrefix.PathPrefix("/account").Subrouter()
 	NewAccountRoutes(accountPrefix, services.Account)
+
+	reservationPrefix := apiPrefix.PathPrefix("/reservation").Subrouter()
+	NewReservationRoutes(reservationPrefix, services.Reservation)
 }
 
 func respond(w http.ResponseWriter, r *http.Request, code int, data interface{}) {
