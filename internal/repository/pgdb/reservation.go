@@ -80,3 +80,35 @@ func (r *ReservationRepo) CreateReservation(ctx context.Context, rsv *model.Rese
 
 	return id, nil
 }
+
+func (r *ReservationRepo) Revenue(ctx context.Context, rsv *model.Reservation) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return repoerrors.ErrCannotStartTransaction
+	}
+
+	if err := tx.QueryRow(
+		`SELECT id FROM reservations WHERE	account_id = $1
+											service_id = $2
+											order_id   = $3
+											amount 	   = $4`,
+		rsv.AccountId, rsv.ServiceId, rsv.OrderId, rsv.Amount,
+	).Scan(&rsv.Id); err != nil {
+		tx.Rollback()
+		if errors.Is(err, sql.ErrNoRows) {
+			return repoerrors.ErrNotFound
+		}
+		return err
+	}
+
+	if _, err := tx.Exec(
+		"DELETE FROM reservations WHERE id = $1",
+		rsv.Id,
+	); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}

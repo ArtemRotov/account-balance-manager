@@ -14,6 +14,7 @@ var (
 	errInvalidDepositValue       = errors.New("invalid deposit value. Value must be greater then 0")
 	errNotEnoughMoney            = errors.New("not enough money")
 	errReservationAlreadyExists  = errors.New("cannot create reservation. already exists")
+	errReservationNotFound       = errors.New("reservation not found")
 )
 
 type ErrorOutput struct {

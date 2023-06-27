@@ -18,4 +18,5 @@ type AccountRepository interface {
 
 type ReservationRepository interface {
 	CreateReservation(ctx context.Context, rsv *model.Reservation) (int, error)
+	Revenue(ctx context.Context, rsv *model.Reservation) error
 }
