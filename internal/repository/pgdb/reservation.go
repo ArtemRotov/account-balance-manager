@@ -88,9 +88,9 @@ func (r *ReservationRepo) Revenue(ctx context.Context, rsv *model.Reservation) e
 	}
 
 	if err := tx.QueryRow(
-		`SELECT id FROM reservations WHERE	account_id = $1
-											service_id = $2
-											order_id   = $3
+		`SELECT id FROM reservations WHERE	account_id = $1 AND
+											service_id = $2 AND
+											order_id   = $3 AND
 											amount 	   = $4`,
 		rsv.AccountId, rsv.ServiceId, rsv.OrderId, rsv.Amount,
 	).Scan(&rsv.Id); err != nil {
@@ -98,6 +98,47 @@ func (r *ReservationRepo) Revenue(ctx context.Context, rsv *model.Reservation) e
 		if errors.Is(err, sql.ErrNoRows) {
 			return repoerrors.ErrNotFound
 		}
+		return err
+	}
+
+	if _, err := tx.Exec(
+		"DELETE FROM reservations WHERE id = $1",
+		rsv.Id,
+	); err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func (r *ReservationRepo) Refund(ctx context.Context, rsv *model.Reservation) error {
+	tx, err := r.db.Begin()
+	if err != nil {
+		return repoerrors.ErrCannotStartTransaction
+	}
+
+	if err := tx.QueryRow(
+		`SELECT id FROM reservations WHERE	account_id = $1 AND
+											service_id = $2 AND
+											order_id   = $3 AND
+											amount 	   = $4`,
+		rsv.AccountId, rsv.ServiceId, rsv.OrderId, rsv.Amount,
+	).Scan(&rsv.Id); err != nil {
+		tx.Rollback()
+		if errors.Is(err, sql.ErrNoRows) {
+			return repoerrors.ErrNotFound
+		}
+		return err
+	}
+
+	if _, err := tx.Exec(
+		"UPDATE accounts SET balance = balance + $1 WHERE id = $2",
+		rsv.Amount,
+		rsv.AccountId,
+	); err != nil {
+		tx.Rollback()
 		return err
 	}
 

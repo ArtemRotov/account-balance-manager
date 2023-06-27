@@ -67,3 +67,24 @@ func (s *ReservationService) Revenue(ctx context.Context, account_id, service_id
 
 	return nil
 }
+
+func (s *ReservationService) Refund(ctx context.Context, account_id, service_id, order_id, amount int) error {
+	r := &model.Reservation{
+		AccountId: account_id,
+		ServiceId: service_id,
+		OrderId:   order_id,
+		Amount:    amount,
+	}
+
+	err := s.reservationRepo.Refund(ctx, r)
+	if err != nil {
+		if errors.Is(err, repoerrors.ErrNotFound) {
+			logrus.Errorf("ReservationService.Refund - reservation not found %v", err)
+			return ErrReservationNotFound
+		}
+		logrus.Errorf("ReservationService.Refund - repoerror %v", err)
+		return err
+	}
+
+	return nil
+}

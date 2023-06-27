@@ -20,7 +20,8 @@ func NewReservationRoutes(router *mux.Router, s service.Reservation) {
 	}
 
 	router.HandleFunc("/create", r.create()).Methods(http.MethodPost)
-	router.HandleFunc("/revenue", r.revenue()).Methods(http.MethodPut)
+	router.HandleFunc("/revenue", r.revenue()).Methods(http.MethodPost)
+	router.HandleFunc("/refund", r.refund()).Methods(http.MethodPost)
 }
 
 type createOutput struct {
@@ -37,6 +38,7 @@ type createOutput struct {
 // @Failure 400 {object} ErrorOutput
 // @Failure 422 {object} ErrorOutput
 // @Failure 500 {object} ErrorOutput
+// @Security JWT
 // @Router /api/v1/reservation/create [post]
 func (route *reservationRoutes) create() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -83,7 +85,8 @@ type revenueOutput struct {
 // @Failure 404 {object} ErrorOutput
 // @Failure 422 {object} ErrorOutput
 // @Failure 500 {object} ErrorOutput
-// @Router /api/v1/reservation/revenue [put]
+// @Security JWT
+// @Router /api/v1/reservation/revenue [post]
 func (route *reservationRoutes) revenue() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res := &model.Reservation{}
@@ -108,5 +111,49 @@ func (route *reservationRoutes) revenue() http.HandlerFunc {
 		}
 
 		respond(w, r, http.StatusOK, revenueOutput{Msg: "OK"})
+	}
+}
+
+type refundOutput struct {
+	Msg string `json:"msg" example:"OK"`
+}
+
+// @Summary refund
+// @Description refund
+// @Tags api/v1/reservation/refund
+// @Accept json
+// @Produce json
+// @Param reservation body model.Reservation true  "ID NO NEED"
+// @Success 200 {object} refundOutput
+// @Failure 400 {object} ErrorOutput
+// @Failure 404 {object} ErrorOutput
+// @Failure 422 {object} ErrorOutput
+// @Failure 500 {object} ErrorOutput
+// @Security JWT
+// @Router /api/v1/reservation/refund [post]
+func (route *reservationRoutes) refund() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		res := &model.Reservation{}
+		if err := json.NewDecoder(r.Body).Decode(&res); err != nil {
+			newErrorRespond(w, r, http.StatusBadRequest, errInvalidRequestBody)
+			return
+		}
+
+		if err := res.Validate(); err != nil {
+			newErrorRespond(w, r, http.StatusUnprocessableEntity, err)
+			return
+		}
+
+		err := route.reservationService.Refund(r.Context(), res.AccountId, res.ServiceId, res.OrderId, res.Amount)
+		if err != nil {
+			if errors.Is(err, service.ErrReservationNotFound) {
+				newErrorRespond(w, r, http.StatusNotFound, errReservationNotFound)
+				return
+			}
+			newErrorRespond(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		respond(w, r, http.StatusOK, refundOutput{Msg: "OK"})
 	}
 }

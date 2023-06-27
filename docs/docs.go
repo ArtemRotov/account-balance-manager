@@ -23,6 +23,11 @@ const docTemplate = `{
     "paths": {
         "/api/v1/account/": {
             "get": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "User balance",
                 "consumes": [
                     "application/json"
@@ -33,7 +38,7 @@ const docTemplate = `{
                 "tags": [
                     "api/v1/account"
                 ],
-                "summary": "Balance",
+                "summary": "balance",
                 "parameters": [
                     {
                         "description": "user_id",
@@ -69,7 +74,12 @@ const docTemplate = `{
         },
         "/api/v1/account/deposit/": {
             "post": {
-                "description": "Deposit by userId",
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "deposit by userId",
                 "consumes": [
                     "application/json"
                 ],
@@ -79,7 +89,7 @@ const docTemplate = `{
                 "tags": [
                     "api/v1/account/deposit"
                 ],
-                "summary": "Deposit",
+                "summary": "deposit",
                 "parameters": [
                     {
                         "description": "user_id, amount",
@@ -115,6 +125,11 @@ const docTemplate = `{
         },
         "/api/v1/reservation/create": {
             "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
                 "description": "create new reservation",
                 "consumes": [
                     "application/json"
@@ -146,6 +161,132 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/reservation/refund": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "refund",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api/v1/reservation/refund"
+                ],
+                "summary": "refund",
+                "parameters": [
+                    {
+                        "description": "ID NO NEED",
+                        "name": "reservation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_ArtemRotov_account-balance-manager_internal_model.Reservation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.refundOutput"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/reservation/revenue": {
+            "post": {
+                "security": [
+                    {
+                        "JWT": []
+                    }
+                ],
+                "description": "recognizes revenue",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "api/v1/reservation/revenue"
+                ],
+                "summary": "revenue",
+                "parameters": [
+                    {
+                        "description": "ID NO NEED",
+                        "name": "reservation",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_ArtemRotov_account-balance-manager_internal_model.Reservation"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.revenueOutput"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/internal_controller_http_v1.ErrorOutput"
                         }
@@ -376,6 +517,24 @@ const docTemplate = `{
                 "user_id": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "internal_controller_http_v1.refundOutput": {
+            "type": "object",
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "example": "OK"
+                }
+            }
+        },
+        "internal_controller_http_v1.revenueOutput": {
+            "type": "object",
+            "properties": {
+                "msg": {
+                    "type": "string",
+                    "example": "OK"
                 }
             }
         },

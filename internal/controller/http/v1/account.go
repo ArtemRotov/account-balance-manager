@@ -18,8 +18,8 @@ func NewAccountRoutes(router *mux.Router, s service.Account) {
 		accountService: s,
 	}
 
-	router.HandleFunc("/", r.Balance()).Methods(http.MethodGet)
-	router.HandleFunc("/deposit", r.Deposit()).Methods(http.MethodPost)
+	router.HandleFunc("/", r.balance()).Methods(http.MethodGet)
+	router.HandleFunc("/deposit", r.deposit()).Methods(http.MethodPost)
 }
 
 type balanceInput struct {
@@ -31,7 +31,7 @@ type balanceOutput struct {
 	Balance int `json:"balance" example:"10000"`
 }
 
-// @Summary Balance
+// @Summary balance
 // @Description User balance
 // @Tags api/v1/account
 // @Accept json
@@ -40,8 +40,9 @@ type balanceOutput struct {
 // @Success 200 {object} balanceOutput
 // @Failure 400 {object} ErrorOutput
 // @Failure 500 {object} ErrorOutput
+// @Security JWT
 // @Router /api/v1/account/ [get]
-func (router *accountRoutes) Balance() http.HandlerFunc {
+func (router *accountRoutes) balance() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		input := &balanceInput{}
 
@@ -79,8 +80,8 @@ type depositOutput struct {
 	Balance int `json:"balance" example:"1000"`
 }
 
-// @Summary Deposit
-// @Description Deposit by userId
+// @Summary deposit
+// @Description deposit by userId
 // @Tags api/v1/account/deposit
 // @Accept json
 // @Produce json
@@ -88,8 +89,9 @@ type depositOutput struct {
 // @Success 200 {object} depositOutput
 // @Failure 400 {object} ErrorOutput
 // @Failure 500 {object} ErrorOutput
+// @Security JWT
 // @Router /api/v1/account/deposit/ [post]
-func (router *accountRoutes) Deposit() http.HandlerFunc {
+func (router *accountRoutes) deposit() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		input := &depositInput{}
 		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {

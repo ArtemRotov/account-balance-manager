@@ -75,6 +75,18 @@ definitions:
         example: 1
         type: integer
     type: object
+  internal_controller_http_v1.refundOutput:
+    properties:
+      msg:
+        example: OK
+        type: string
+    type: object
+  internal_controller_http_v1.revenueOutput:
+    properties:
+      msg:
+        example: OK
+        type: string
+    type: object
   internal_controller_http_v1.signInOutput:
     properties:
       Token:
@@ -125,14 +137,16 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
-      summary: Balance
+      security:
+      - JWT: []
+      summary: balance
       tags:
       - api/v1/account
   /api/v1/account/deposit/:
     post:
       consumes:
       - application/json
-      description: Deposit by userId
+      description: deposit by userId
       parameters:
       - description: user_id, amount
         in: body
@@ -155,7 +169,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
-      summary: Deposit
+      security:
+      - JWT: []
+      summary: deposit
       tags:
       - api/v1/account/deposit
   /api/v1/reservation/create:
@@ -189,9 +205,91 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+      security:
+      - JWT: []
       summary: create
       tags:
       - api/v1/reservation/create
+  /api/v1/reservation/refund:
+    post:
+      consumes:
+      - application/json
+      description: refund
+      parameters:
+      - description: ID NO NEED
+        in: body
+        name: reservation
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ArtemRotov_account-balance-manager_internal_model.Reservation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.refundOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+      security:
+      - JWT: []
+      summary: refund
+      tags:
+      - api/v1/reservation/refund
+  /api/v1/reservation/revenue:
+    post:
+      consumes:
+      - application/json
+      description: recognizes revenue
+      parameters:
+      - description: ID NO NEED
+        in: body
+        name: reservation
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ArtemRotov_account-balance-manager_internal_model.Reservation'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.revenueOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_controller_http_v1.ErrorOutput'
+      security:
+      - JWT: []
+      summary: revenue
+      tags:
+      - api/v1/reservation/revenue
   /auth/sign-in:
     post:
       consumes:

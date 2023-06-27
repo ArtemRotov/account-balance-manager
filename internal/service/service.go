@@ -56,4 +56,5 @@ type Account interface {
 type Reservation interface {
 	CreateReservation(ctx context.Context, account_id, service_id, order_id, amount int) (*model.Reservation, error)
 	Revenue(ctx context.Context, account_id, service_id, order_id, amount int) error
+	Refund(ctx context.Context, account_id, service_id, order_id, amount int) error
 }
