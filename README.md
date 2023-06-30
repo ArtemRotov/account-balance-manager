@@ -18,6 +18,7 @@
 
 ## Примеры использования
 - [Регистрация](#sign-up)
+- [Аутентификация](#sign-in)
 
 ### Регистрация <a name="sign-up"></a>
 
@@ -33,5 +34,22 @@ curl -X POST 'http://localhost:8080/auth/sign-up' \
 ```json
 {
   "id": 1
+}
+```
+
+### Аутентификация <a name="sign-in"></a>
+
+```curl
+curl -X POST 'http://localhost:8080/auth/sign-in' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "username":"example@mail.org",
+    "password":"123456"
+}'
+```
+Ответ:
+```json
+{
+  "Token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2ODgxMjMzNzksImlhdCI6MTY4ODExNjE3OSwiVXNlcklkIjoxfQ.tydIAyeaaZVP01mv5iEXGbkNbw4OhBZZn1mjwFe0TM8"
 }
 ```
