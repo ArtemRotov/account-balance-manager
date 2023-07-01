@@ -6,7 +6,7 @@ http:
   port: 8080
 
 log:
-  level: "debug"
+  level: "local"
 
 postgres:
   url: "user=root password=root host=localhost dbname=db sslmode=disable"

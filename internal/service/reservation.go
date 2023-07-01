@@ -3,20 +3,23 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"golang.org/x/exp/slog"
 
 	"github.com/ArtemRotov/account-balance-manager/internal/model"
 	"github.com/ArtemRotov/account-balance-manager/internal/repository"
 	"github.com/ArtemRotov/account-balance-manager/internal/repository/repoerrors"
-	"github.com/sirupsen/logrus"
 )
 
 type ReservationService struct {
 	reservationRepo repository.ReservationRepository
+	log             *slog.Logger
 }
 
-func NewReservationService(r repository.ReservationRepository) *ReservationService {
+func NewReservationService(r repository.ReservationRepository, log *slog.Logger) *ReservationService {
 	return &ReservationService{
 		reservationRepo: r,
+		log:             log,
 	}
 }
 
@@ -33,13 +36,13 @@ func (s *ReservationService) CreateReservation(ctx context.Context, account_id,
 	id, err := s.reservationRepo.CreateReservation(ctx, r)
 	if err != nil {
 		if errors.Is(err, repoerrors.ErrAlreadyExists) {
-			logrus.Errorf("ReservationService.CreateReservation - reservation exists %v", err)
+			s.log.Error(fmt.Sprintf("ReservationService.CreateReservation - reservation exists %v", err))
 			return nil, ErrReservationAlreadyExists
 		} else if errors.Is(err, repoerrors.ErrInsufficientBalance) {
-			logrus.Errorf("ReservationService.CreateReservation - not enough money %v", err)
+			s.log.Error(fmt.Sprintf("ReservationService.CreateReservation - not enough money %v", err))
 			return nil, ErrNotEnoughMoney
 		}
-		logrus.Errorf("ReservationService.CreateReservation - repoerror %v", err)
+		s.log.Error(fmt.Sprintf("ReservationService.CreateReservation - repoerror %v", err))
 		return nil, err
 	}
 
@@ -58,10 +61,10 @@ func (s *ReservationService) Revenue(ctx context.Context, account_id, service_id
 	err := s.reservationRepo.Revenue(ctx, r)
 	if err != nil {
 		if errors.Is(err, repoerrors.ErrNotFound) {
-			logrus.Errorf("ReservationService.Revenue - reservation not found %v", err)
+			s.log.Error(fmt.Sprintf("ReservationService.Revenue - reservation not found %v", err))
 			return ErrReservationNotFound
 		}
-		logrus.Errorf("ReservationService.Revenue - repoerror %v", err)
+		s.log.Error(fmt.Sprintf("ReservationService.Revenue - repoerror %v", err))
 		return err
 	}
 
@@ -79,10 +82,10 @@ func (s *ReservationService) Refund(ctx context.Context, account_id, service_id,
 	err := s.reservationRepo.Refund(ctx, r)
 	if err != nil {
 		if errors.Is(err, repoerrors.ErrNotFound) {
-			logrus.Errorf("ReservationService.Refund - reservation not found %v", err)
+			s.log.Error(fmt.Sprintf("ReservationService.Refund - reservation not found %v", err))
 			return ErrReservationNotFound
 		}
-		logrus.Errorf("ReservationService.Refund - repoerror %v", err)
+		s.log.Error(fmt.Sprintf("ReservationService.Refund - repoerror %v", err))
 		return err
 	}
 

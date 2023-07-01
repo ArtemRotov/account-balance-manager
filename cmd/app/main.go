@@ -15,7 +15,6 @@ func init() {
 }
 
 func main() {
-
 	flag.Parse()
 
 	app.Run(configPath)

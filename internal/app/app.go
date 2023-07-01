@@ -3,6 +3,7 @@ package app
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -15,7 +16,6 @@ import (
 	"github.com/ArtemRotov/account-balance-manager/pkg/httpserver"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
-	log "github.com/sirupsen/logrus"
 )
 
 // @title My test service
@@ -37,9 +37,6 @@ func Run(configPath string) {
 		log.Fatal(err)
 	}
 
-	// Logger
-	SetLogrus(cfg.Log.Level)
-
 	// Postgres
 	db, err := NewPostgres(cfg.PG.URL)
 	if err != nil {
@@ -47,41 +44,44 @@ func Run(configPath string) {
 	}
 	defer db.Close()
 
+	// Logger
+	logger := SetSlog(cfg.Level)
+
 	// Repository
 	rep := repository.NewRepositories(db)
 
 	//Service dependencies
-	deps := service.NewServicesDeps(rep, hasher.NewSHA1Hasher(cfg.Salt), cfg.SignKey, cfg.TokenTTL)
+	deps := service.NewServicesDeps(rep, logger, hasher.NewSHA1Hasher(cfg.Salt), cfg.SignKey, cfg.TokenTTL)
 
 	// Services
 	services := service.NewServices(deps)
 
 	// mux handler
-	log.Info("configuring router...")
+	logger.Info("configuring router...")
 	handler := mux.NewRouter()
-	v1.New(handler, services)
+	v1.New(handler, services, logger)
 
 	// HTTP Server
-	log.Info("starting server...")
-	httpserver := httpserver.New(handler, cfg.Port)
+	logger.Info("starting server...")
+	server := httpserver.New(handler, cfg.Port)
 
 	// Waiting signal
-	log.Info("configuring graceful shutdown...")
+	logger.Info("configuring graceful shutdown...")
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
 	select {
 	case s := <-interrupt:
-		log.Info("app - Run - signal: " + s.String())
-	case err = <-httpserver.Notify():
-		log.Error(fmt.Errorf("app - Run - httpServer.Notify: %w", err))
+		logger.Info("app - Run - signal: " + s.String())
+	case err = <-server.Notify():
+		logger.Error(fmt.Sprintf("app - Run - httpServer.Notify: %w", err))
 	}
 
 	// Graceful shutdown
-	log.Info("Shutting down...")
-	err = httpserver.Shutdown()
+	logger.Info("Shutting down...")
+	err = server.Shutdown()
 	if err != nil {
-		log.Error(fmt.Errorf("app - Run - httpServer.Shutdown: %w", err))
+		logger.Error(fmt.Sprintf("app - Run - httpServer.Shutdown: %w", err))
 	}
 }
 

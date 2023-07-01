@@ -1,22 +1,31 @@
 package app
 
 import (
+	"golang.org/x/exp/slog"
 	"os"
-
-	"github.com/sirupsen/logrus"
 )
 
-func SetLogrus(level string) {
-	logrusLevel, err := logrus.ParseLevel(level)
-	if err != nil {
-		logrus.SetLevel(logrus.DebugLevel)
-	} else {
-		logrus.SetLevel(logrusLevel)
+const (
+	local = "local"
+	dev   = "dev"
+	prod  = "prod"
+)
+
+func SetSlog(level string) *slog.Logger {
+	var log *slog.Logger
+	switch level {
+	case local:
+		log = slog.New(
+			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		)
+	case dev:
+		log = slog.New(
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}),
+		)
+	case prod:
+		log = slog.New(
+			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}),
+		)
 	}
-
-	// logrus.SetFormatter(&logrus.JSONFormatter{
-	// 	TimestampFormat: "2006-01-02 15:04:05",
-	// })
-
-	logrus.SetOutput(os.Stdout)
+	return log
 }

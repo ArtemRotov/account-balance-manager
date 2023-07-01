@@ -4,17 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"golang.org/x/exp/slog"
 	"time"
 
 	"github.com/ArtemRotov/account-balance-manager/internal/model"
 	"github.com/ArtemRotov/account-balance-manager/internal/repository"
 	"github.com/ArtemRotov/account-balance-manager/internal/repository/repoerrors"
 	"github.com/golang-jwt/jwt"
-	"github.com/sirupsen/logrus"
 )
 
 type AuthService struct {
 	userRepo repository.UserRepository
+	log      *slog.Logger
 	hasher   PasswordHasher
 	signKey  string
 	tokenTTL time.Duration
@@ -25,9 +26,10 @@ type TokenClaims struct {
 	UserId int
 }
 
-func NewAuthService(r repository.UserRepository, h PasswordHasher, signKey string, ttl time.Duration) *AuthService {
+func NewAuthService(r repository.UserRepository, log *slog.Logger, h PasswordHasher, signKey string, ttl time.Duration) *AuthService {
 	return &AuthService{
 		userRepo: r,
+		log:      log,
 		hasher:   h,
 		signKey:  signKey,
 		tokenTTL: ttl,
@@ -45,7 +47,7 @@ func (s *AuthService) CreateUser(ctx context.Context, username, password string)
 		if errors.Is(err, repoerrors.ErrAlreadyExists) {
 			return 0, ErrUserAlreadyExists
 		}
-		logrus.Errorf("AuthService.CreateUser - cannot create user %v", err)
+		s.log.Error(fmt.Sprintf("AuthService.CreateUser - cannot create user %v", err))
 		return 0, err
 	}
 
@@ -63,7 +65,7 @@ func (s *AuthService) GenerateToken(ctx context.Context, username, password stri
 		if errors.Is(err, repoerrors.ErrNotFound) {
 			return "", ErrUserNotFound
 		}
-		logrus.Errorf("AuthService.GenerateToken - cannot get user %v", err)
+		s.log.Error(fmt.Sprintf("AuthService.GenerateToken - cannot get user %v", err))
 		return "", err
 	}
 
@@ -78,7 +80,7 @@ func (s *AuthService) GenerateToken(ctx context.Context, username, password stri
 	// sign token
 	tokenString, err := token.SignedString([]byte(s.signKey))
 	if err != nil {
-		logrus.Errorf("AuthService.GenerateToken: cannot sign token: %v", err)
+		s.log.Error(fmt.Sprintf("AuthService.GenerateToken: cannot sign token: %v", err))
 		return "", ErrCannotSignToken
 	}
 

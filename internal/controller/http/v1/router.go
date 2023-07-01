@@ -2,6 +2,7 @@ package v1
 
 import (
 	"encoding/json"
+	"golang.org/x/exp/slog"
 	"net/http"
 
 	_ "github.com/ArtemRotov/account-balance-manager/docs"
@@ -10,7 +11,7 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-func New(router *mux.Router, services *service.Services) {
+func New(router *mux.Router, services *service.Services, log *slog.Logger) {
 	// Swagger
 	router.PathPrefix("/swagger/").Handler(httpSwagger.Handler(
 		httpSwagger.URL("http://localhost:8080/swagger/doc.json"), //The url pointing to API definition
@@ -23,7 +24,7 @@ func New(router *mux.Router, services *service.Services) {
 	NewAuthRoutes(authRoute, services.Auth)
 
 	apiPrefix := router.PathPrefix("/api/v1").Subrouter()
-	authMiddlwr := NewAuthMiddleware(apiPrefix, services)
+	authMiddlwr := NewAuthMiddleware(services, log)
 	apiPrefix.Use(authMiddlwr.verify)
 
 	accountPrefix := apiPrefix.PathPrefix("/account").Subrouter()

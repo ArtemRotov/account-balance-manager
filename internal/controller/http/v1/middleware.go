@@ -2,12 +2,12 @@ package v1
 
 import (
 	"context"
+	"fmt"
+	"golang.org/x/exp/slog"
 	"net/http"
 	"strings"
 
 	"github.com/ArtemRotov/account-balance-manager/internal/service"
-	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
 )
 
 type ctxKey int8
@@ -18,11 +18,13 @@ const (
 
 type authMiddleware struct {
 	service service.Auth
+	log     *slog.Logger
 }
 
-func NewAuthMiddleware(router *mux.Router, s service.Auth) *authMiddleware {
+func NewAuthMiddleware(s service.Auth, log *slog.Logger) *authMiddleware {
 	return &authMiddleware{
 		service: s,
+		log:     log,
 	}
 }
 
@@ -31,14 +33,14 @@ func (m *authMiddleware) verify(next http.Handler) http.Handler {
 		token, ok := bearerToken(r)
 		if !ok {
 			newErrorRespond(w, r, http.StatusUnauthorized, errInvalidAuthHeader)
-			log.Errorf("authMiddleware.verify: bearerToken: %v", errInvalidAuthHeader.Error())
+			m.log.Error(fmt.Sprintf("authMiddleware.verify: bearerToken: %v", errInvalidAuthHeader.Error()))
 			return
 		}
 
 		userId, err := m.service.ParseToken(token)
 		if err != nil {
 			newErrorRespond(w, r, http.StatusUnauthorized, errCannotParseToken)
-			log.Errorf("authMiddleware.verify: m.service.ParseToken: %v", err.Error())
+			m.log.Error(fmt.Sprintf("authMiddleware.verify: m.service.ParseToken: %v", err.Error()))
 			return
 		}
 
