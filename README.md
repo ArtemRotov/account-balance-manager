@@ -6,6 +6,7 @@
 - Docker (для запуска сервиса)
 - Swagger (для документации API)
 - gorilla/mux (веб фреймворк)
+- slog (логгер)
 - golang-migrate/migrate (для миграций БД)
 
 **Основные функции:**
