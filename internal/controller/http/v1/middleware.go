@@ -3,9 +3,12 @@ package v1
 import (
 	"context"
 	"fmt"
+	"github.com/ArtemRotov/account-balance-manager/pkg/responsewriter"
+	"github.com/google/uuid"
 	"golang.org/x/exp/slog"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/ArtemRotov/account-balance-manager/internal/service"
 )
@@ -14,6 +17,7 @@ type ctxKey int8
 
 const (
 	ctxKeyUser ctxKey = iota
+	ctxRequestId
 )
 
 type authMiddleware struct {
@@ -61,4 +65,36 @@ func bearerToken(r *http.Request) (string, bool) {
 	}
 
 	return "", false
+}
+
+type middleware struct {
+	log *slog.Logger
+}
+
+func NewMiddleware(log *slog.Logger) *middleware {
+	return &middleware{
+		log: log,
+	}
+}
+
+func (m *middleware) requestId(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		id := uuid.New().String()
+		w.Header().Set("X-Request-ID", id)
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxRequestId, id)))
+	})
+}
+
+func (m *middleware) logRequest(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log := m.log.With(slog.String("ID", r.Context().Value(ctxRequestId).(string)))
+		log.Debug(fmt.Sprintf("started %s %s", r.Method, r.RequestURI))
+		startTime := time.Now()
+
+		rw := &responsewriter.ResponseWriter{w, http.StatusOK}
+		next.ServeHTTP(rw, r)
+
+		log.Debug(fmt.Sprintf("completed with code %d(%s) [%v]",
+			rw.Code, http.StatusText(rw.Code), time.Since(startTime)))
+	})
 }

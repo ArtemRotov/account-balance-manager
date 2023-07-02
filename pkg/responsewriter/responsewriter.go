@@ -2,12 +2,12 @@ package responsewriter
 
 import "net/http"
 
-type responseWriter struct {
+type ResponseWriter struct {
 	http.ResponseWriter
-	code int
+	Code int
 }
 
-func (w *responseWriter) WriteHeader(statusCode int) {
-	w.code = statusCode
+func (w *ResponseWriter) WriteHeader(statusCode int) {
+	w.Code = statusCode
 	w.ResponseWriter.WriteHeader(statusCode)
 }

@@ -20,16 +20,24 @@ func New(router *mux.Router, services *service.Services, log *slog.Logger) {
 		// httpSwagger.DomID("swagger-ui"),
 	)).Methods(http.MethodGet)
 
+	// Middleware
+	baseMiddleware := NewMiddleware(log)
+	router.Use(baseMiddleware.requestId)
+	router.Use(baseMiddleware.logRequest)
+
+	// Authentication
 	authRoute := router.PathPrefix("/auth").Subrouter()
 	NewAuthRoutes(authRoute, services.Auth)
 
+	// API
 	apiPrefix := router.PathPrefix("/api/v1").Subrouter()
-	authMiddlwr := NewAuthMiddleware(services, log)
-	apiPrefix.Use(authMiddlwr.verify)
-
+	// API - middleware
+	authMiddleware := NewAuthMiddleware(services, log)
+	apiPrefix.Use(authMiddleware.verify)
+	// API - account
 	accountPrefix := apiPrefix.PathPrefix("/account").Subrouter()
 	NewAccountRoutes(accountPrefix, services.Account)
-
+	// API - reservation
 	reservationPrefix := apiPrefix.PathPrefix("/reservation").Subrouter()
 	NewReservationRoutes(reservationPrefix, services.Reservation)
 }
