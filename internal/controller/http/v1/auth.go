@@ -3,6 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"errors"
+	"golang.org/x/net/context"
 	"net/http"
 
 	"github.com/ArtemRotov/account-balance-manager/internal/model"
@@ -10,11 +11,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type authRoutes struct {
-	service service.Auth
+type AuthService interface {
+	CreateUser(ctx context.Context, username, password string) (int, error)
+	GenerateToken(ctx context.Context, username, password string) (string, error)
 }
 
-func NewAuthRoutes(router *mux.Router, s service.Auth) {
+type authRoutes struct {
+	service AuthService
+}
+
+func NewAuthRoutes(router *mux.Router, s AuthService) {
 	r := &authRoutes{
 		service: s,
 	}

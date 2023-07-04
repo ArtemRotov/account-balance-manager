@@ -1,18 +1,16 @@
 package service
 
 import (
-	"context"
 	"golang.org/x/exp/slog"
 	"time"
 
-	"github.com/ArtemRotov/account-balance-manager/internal/model"
 	"github.com/ArtemRotov/account-balance-manager/internal/repository"
 )
 
 type Services struct {
-	Auth
-	Account
-	Reservation
+	Auth        *AuthService
+	Account     *AccountService
+	Reservation *ReservationService
 }
 
 func NewServices(deps *ServiceDeps) *Services {
@@ -43,21 +41,4 @@ func NewServicesDeps(repo *repository.Repositories, log *slog.Logger, h Password
 
 type PasswordHasher interface {
 	Hash(password string) string
-}
-
-type Auth interface {
-	CreateUser(ctx context.Context, username, password string) (int, error)
-	GenerateToken(ctx context.Context, username, password string) (string, error)
-	ParseToken(accessToken string) (int, error)
-}
-
-type Account interface {
-	AccountByUserId(ctx context.Context, userId int) (*model.Account, error)
-	DepositByUserId(ctx context.Context, userId, amount int) (*model.Account, error)
-}
-
-type Reservation interface {
-	CreateReservation(ctx context.Context, account_id, service_id, order_id, amount int) (*model.Reservation, error)
-	Revenue(ctx context.Context, account_id, service_id, order_id, amount int) error
-	Refund(ctx context.Context, account_id, service_id, order_id, amount int) error
 }

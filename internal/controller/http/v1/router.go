@@ -32,7 +32,7 @@ func New(router *mux.Router, services *service.Services, log *slog.Logger) {
 	// API
 	apiPrefix := router.PathPrefix("/api/v1").Subrouter()
 	// API - middleware
-	authMiddleware := NewAuthMiddleware(services, log)
+	authMiddleware := NewAuthMiddleware(services.Auth, log)
 	apiPrefix.Use(authMiddleware.verify)
 	// API - account
 	accountPrefix := apiPrefix.PathPrefix("/account").Subrouter()

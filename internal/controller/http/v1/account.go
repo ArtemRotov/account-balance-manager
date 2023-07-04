@@ -3,17 +3,24 @@ package v1
 import (
 	"encoding/json"
 	"errors"
+	"github.com/ArtemRotov/account-balance-manager/internal/model"
+	"golang.org/x/net/context"
 	"net/http"
 
 	"github.com/ArtemRotov/account-balance-manager/internal/service"
 	"github.com/gorilla/mux"
 )
 
-type accountRoutes struct {
-	accountService service.Account
+type AccountService interface {
+	AccountByUserId(ctx context.Context, userId int) (*model.Account, error)
+	DepositByUserId(ctx context.Context, userId, amount int) (*model.Account, error)
 }
 
-func NewAccountRoutes(router *mux.Router, s service.Account) {
+type accountRoutes struct {
+	accountService AccountService
+}
+
+func NewAccountRoutes(router *mux.Router, s AccountService) {
 	r := &accountRoutes{
 		accountService: s,
 	}

@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/ArtemRotov/account-balance-manager/internal/service"
 )
 
 type ctxKey int8
@@ -20,12 +18,16 @@ const (
 	ctxRequestId
 )
 
+type AuthMiddlewareService interface {
+	ParseToken(accessToken string) (int, error)
+}
+
 type authMiddleware struct {
-	service service.Auth
+	service AuthMiddlewareService
 	log     *slog.Logger
 }
 
-func NewAuthMiddleware(s service.Auth, log *slog.Logger) *authMiddleware {
+func NewAuthMiddleware(s AuthMiddlewareService, log *slog.Logger) *authMiddleware {
 	return &authMiddleware{
 		service: s,
 		log:     log,

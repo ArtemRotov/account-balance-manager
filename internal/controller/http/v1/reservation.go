@@ -3,6 +3,7 @@ package v1
 import (
 	"encoding/json"
 	"errors"
+	"golang.org/x/net/context"
 	"net/http"
 
 	"github.com/ArtemRotov/account-balance-manager/internal/model"
@@ -10,11 +11,17 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type reservationRoutes struct {
-	reservationService service.Reservation
+type ReservationService interface {
+	CreateReservation(ctx context.Context, account_id, service_id, order_id, amount int) (*model.Reservation, error)
+	Revenue(ctx context.Context, account_id, service_id, order_id, amount int) error
+	Refund(ctx context.Context, account_id, service_id, order_id, amount int) error
 }
 
-func NewReservationRoutes(router *mux.Router, s service.Reservation) {
+type reservationRoutes struct {
+	reservationService ReservationService
+}
+
+func NewReservationRoutes(router *mux.Router, s ReservationService) {
 	r := &reservationRoutes{
 		reservationService: s,
 	}
