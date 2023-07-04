@@ -91,7 +91,7 @@ func (m *middleware) logRequest(next http.Handler) http.Handler {
 		log.Debug(fmt.Sprintf("started %s %s", r.Method, r.RequestURI))
 		startTime := time.Now()
 
-		rw := &responsewriter.ResponseWriter{w, http.StatusOK}
+		rw := &responsewriter.ResponseWriter{ResponseWriter: w, Code: http.StatusOK}
 		next.ServeHTTP(rw, r)
 
 		log.Debug(fmt.Sprintf("completed with code %d(%s) [%v]",
